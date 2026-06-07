@@ -6,6 +6,16 @@ __pycache__/
 *.pyc
 *.pyo
 
+# PyInstaller 编译产物
+build/
+dist/
+*.spec
+
+# 鸿蒙/DevEco Studio 构建产物
+.hvigor/
+oh_modules/
+.idea/
+
 # 生成的输出文件
 output/
 

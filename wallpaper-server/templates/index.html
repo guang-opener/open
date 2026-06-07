@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallpaperSync 壁纸同步</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei",sans-serif;background:#0f0f0f;color:#eee;padding:20px}
+h1{font-size:22px;color:#fff;margin-bottom:4px}
+.sub{color:#888;font-size:13px;margin-bottom:20px}
+.panel{background:#1a1a1a;border-radius:12px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:12px;color:#888;margin-bottom:10px;text-transform:uppercase}
+/* 连接区 */
+.connect-bar{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.qr-box{background:#fff;padding:8px;border-radius:8px}
+.phone-url{font-family:Consolas,monospace;font-size:20px;color:#4CAF50;background:#111;padding:10px 16px;border-radius:8px;word-break:break-all}
+/* 统计 */
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat-card{background:#222;border-radius:10px;padding:14px 20px;min-width:100px;text-align:center}
+.stat-card .val{font-size:28px;font-weight:700;color:#4CAF50}
+.stat-card .lbl{font-size:11px;color:#888;margin-top:4px}
+.stat-card .tip{font-size:10px;color:#555;margin-top:2px}
+/* 筛选 */
+.controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.controls input,.controls select,.controls button{padding:8px 14px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#eee;font-size:13px}
+.controls button{cursor:pointer;background:#4CAF50;border-color:#4CAF50;color:#fff}
+/* 网格 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.card{background:#1a1a1a;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s}
+.card:hover{transform:translateY(-2px)}
+.card img{width:100%;height:145px;object-fit:cover;background:#222}
+.card-info{padding:10px 14px}
+.card-info h3{font-size:14px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-info .author{font-size:11px;color:#777;margin-top:2px}
+.card-tags{padding:0 14px 10px;display:flex;gap:6px;align-items:center}
+.tag{padding:2px 10px;border-radius:10px;font-size:10px}
+.tag-video{background:#1a3a1a;color:#4CAF50}
+.tag-scene{background:#3a2a1a;color:#FF9800}
+.tag-mature{background:#3a1515;color:#FF5252}
+.tag-size{color:#666;font-size:10px;margin-left:auto}
+.empty{text-align:center;padding:40px;color:#666}
+@media(max-width:600px){
+.grid{grid-template-columns:1fr 1fr}.card img{height:110px}.phone-url{font-size:16px}
+}
+</style>
+</head>
+<body>
+<h1>WallpaperSync 壁纸同步</h1>
+<p class="sub">Wallpaper Engine 创意工坊 → 同步到手机</p>
+
+<!-- 连接信息 -->
+<div class="panel">
+<div class="panel-title">手机连接</div>
+<div class="connect-bar">
+<div id="qrcode" class="qr-box"></div>
+<div>
+<div class="phone-url" id="phoneUrl">加载中...</div>
+<div style="color:#888;font-size:12px;margin-top:8px">手机和PC在同一WiFi下，打开App输入上方地址</div>
+</div>
+</div>
+</div>
+
+<!-- 统计 -->
+<div class="panel">
+<div class="stats" id="statsPanel">
+<div class="stat-card"><div class="val" id="statTotal">--</div><div class="lbl">壁纸总数</div><div class="tip">WE创意工坊已下载</div></div>
+<div class="stat-card"><div class="val" id="statVideo">--</div><div class="lbl">视频壁纸</div><div class="tip">mp4格式，可下载</div></div>
+<div class="stat-card"><div class="val" id="statScene">--</div><div class="lbl">场景壁纸</div><div class="tip">实时渲染，需录屏</div></div>
+<div class="stat-card"><div class="val" id="statCustom">--</div><div class="lbl">自定义</div><div class="tip">导出文件夹中的</div></div>
+</div>
+</div>
+
+<!-- 筛选 + 壁纸列表 -->
+<div class="controls">
+<input type="text" id="search" placeholder="搜索壁纸..." style="flex:1;min-width:150px">
+<select id="typeFilter">
+<option value="">全部类型</option><option value="video">视频壁纸</option><option value="scene">场景壁纸</option>
+</select>
+<select id="ratingFilter">
+<option value="">不限年龄</option><option value="Everyone" selected>全年龄</option><option value="Mature">成人</option>
+</select>
+<button onclick="refresh()">刷新</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+let API = '/api';
+let phoneUrl = '';
+
+async function init() {
+let r = await fetch(API + '/status');
+let d = await r.json();
+document.getElementById('statTotal').textContent = d.total_wallpapers;
+document.getElementById('statVideo').textContent = d.video_count;
+document.getElementById('statScene').textContent = d.scene_count;
+document.getElementById('statCustom').textContent = d.custom_count || 0;
+// 从页面 URL 推断手机连接地址
+let pageHost = window.location.hostname;
+let port = window.location.port || '18920';
+phoneUrl = 'http://' + pageHost + ':' + port;
+document.getElementById('phoneUrl').textContent = phoneUrl;
+// 生成 QR 码
+if (typeof QRCode !== 'undefined') {
+new QRCode(document.getElementById('qrcode'),{text:phoneUrl,width:100,height:100});
+}
+loadWallpapers();
+}
+
+async function loadWallpapers() {
+let type = document.getElementById('typeFilter').value;
+let rating = document.getElementById('ratingFilter').value;
+let search = document.getElementById('search').value;
+let url = API + '/wallpapers?size=200';
+if (type) url += '&type=' + type;
+if (search) url += '&search=' + encodeURIComponent(search);
+let r = await fetch(url);
+let d = await r.json();
+let items = d.items;
+// 前端按年龄分级过滤
+if (rating) {
+items = items.filter(i => i.contentRating === rating);
+}
+renderGrid(items);
+}
+
+function renderGrid(items) {
+let grid = document.getElementById('grid');
+if (!items.length) { grid.innerHTML='<div class="empty">没有壁纸</div>'; return; }
+grid.innerHTML = items.map(i => `
+<div class="card">
+<img src="${i.previewUrl}" alt="${i.name}" onerror="this.style.background='#222'">
+<div class="card-info"><h3 title="${i.name}">${i.name}</h3><div class="author">${i.author}</div></div>
+<div class="card-tags">
+<span class="tag tag-${i.type}">${i.type==='video'?'视频':i.type==='scene'?'场景':'其他'}</span>
+${i.contentRating==='Mature'?'<span class="tag tag-mature">18+</span>':''}
+${i.sizeBytes>0?'<span class="tag-size">'+(i.sizeBytes/1048576).toFixed(1)+'MB</span>':''}
+${i.type==='video'?`<a href="${i.downloadUrl}" style="color:#4CAF50;font-size:10px;margin-left:auto">下载</a>`:''}
+</div>
+</div>`).join('');
+}
+
+function refresh() { fetch(API+'/refresh'); setTimeout(init,500); }
+
+document.getElementById('search').addEventListener('input',loadWallpapers);
+document.getElementById('typeFilter').addEventListener('change',loadWallpapers);
+document.getElementById('ratingFilter').addEventListener('change',loadWallpapers);
+
+init();
+</script>
+</body>
+</html>

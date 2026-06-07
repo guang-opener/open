@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Wallpaper同步壁纸 - PC壁纸同步到手机"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "WallpaperSync 主程序"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Wallpaper同步壁纸"
+    },
+    {
+      "name": "permission_internet_reason",
+      "value": "用于连接局域网内的PC端壁纸服务"
+    },
+    {
+      "name": "permission_network_reason",
+      "value": "用于获取网络状态"
+    },
+    {
+      "name": "permission_wallpaper_reason",
+      "value": "用于设置桌面和锁屏动态壁纸"
+    },
+    {
+      "name": "permission_storage_reason",
+      "value": "用于下载和保存壁纸文件"
+    }
+  ]
+}
