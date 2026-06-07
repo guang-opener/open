@@ -1,0 +1,52 @@
+# ============================================================
+# 科技调研报告生成工具 - 配置模板
+# 用法: 复制此文件为 config.yaml，修改下面三行即可
+#       run.bat full --config config.yaml
+# ============================================================
+
+# ★ 第一步: 调研主题 (必填)
+topic: "REBCO高温超导带材接头技术"
+topic_en: "REBCO coated conductor joint technology"
+subtitle: "—— 技术调研与专利分析报告 ——"
+output_filename: "REBCO带材接头技术调研报告"
+
+# ★ 第二步: 检索关键词 (英文为主，覆盖面更广)
+search:
+  journal_keywords:
+    - "REBCO coated conductor joint"
+    - "HTS tape joint soldering"
+    - "superconducting joint fabrication"
+    - "ultrasonic soldering superconductor"
+    - "copper diffusion bonding REBCO"
+  patent_keywords:
+    - "REBCO superconducting joint"
+    - "HTS coated conductor joint"
+    - "superconducting tape soldering"
+    - "REBCO tape connection"
+
+# ★ 第三步 (可选): 输出目录
+output_dir: "../output"
+
+# ============================================================
+# 以下为高级设置，通常无需修改
+# ============================================================
+search:
+  sources: [semanticscholar, arxiv, crossref]
+  max_results_per_source: 10
+  patent_sources: [google_patents]
+  year_from: 2020
+  year_to: 2026
+
+filter:
+  min_relevance_score: 50
+  max_results: 30
+
+formatting:
+  title_font: "微软雅黑"
+  heading_font: "微软雅黑"
+  body_font: "宋体"
+  page_size: "A4"
+
+claude_api:
+  api_key: ""
+  model: "claude-sonnet-4-6"

@@ -1,0 +1,14 @@
+# Claude 本地配置（包含本机路径，不适合分享）
+.claude/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 生成的输出文件
+output/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

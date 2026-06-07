@@ -1,0 +1,98 @@
+# ============================================================
+# 科技调研报告生成工具 - 配置文件
+# ============================================================
+
+# 调研主题
+topic: "REBCO高温超导带材接头技术"
+topic_en: "REBCO coated conductor joint technology"
+
+# 输出设置
+output_dir: "../output"
+output_filename: "超导带材接头技术调研报告"
+
+# 文档结构
+document_structure:
+  sections:
+    - 摘要
+    - 技术背景与实例
+    - 专利分析
+    - 技术对比分析
+    - 图文技术介绍
+    - 结论与展望
+    - 参考文献
+
+# 搜索设置
+search:
+  # 专利检索关键词
+  patent_keywords:
+    - "REBCO superconducting joint"
+    - "HTS coated conductor joint"
+    - "超导带材接头"
+    - "高温超导焊接接头"
+    - "superconducting tape soldering"
+    - "REBCO tape connection"
+    - "无纤剂超导接头"
+
+  # 期刊检索关键词
+  journal_keywords:
+    - "REBCO coated conductor joint resistance"
+    - "HTS tape joint soldering"
+    - "superconducting joint fabrication"
+    - "ultrasonic soldering superconductor"
+    - "copper diffusion bonding REBCO"
+
+  # 检索源 (可多选: semanticscholar, arxiv, crossref)
+  sources:
+    - semanticscholar
+    - arxiv
+    - crossref
+
+  # 每源最大结果数
+  max_results_per_source: 15
+
+  # 专利检索源
+  patent_sources:
+    - google_patents
+
+  # 时间范围 (年份, 留空为不限)
+  year_from: 2020
+  year_to: 2026
+
+# 筛选设置
+filter:
+  # 最低相关性分数 (0-100)
+  min_relevance_score: 60
+
+  # 最多保留结果数
+  max_results: 30
+
+# 文档格式化设置
+formatting:
+  # 字体设置
+  title_font: "微软雅黑"
+  heading_font: "微软雅黑"
+  body_font: "宋体"
+
+  # 字号 (磅)
+  title_size: 26
+  heading1_size: 18
+  heading2_size: 15
+  heading3_size: 13
+  body_size: 12
+
+  # 标题颜色 (十六进制)
+  title_color: "1F4E79"
+  heading_color: "1F4E79"
+
+  # 页面设置
+  page_size: "A4"  # A4 或 letter
+  margin_top_cm: 2.54
+  margin_bottom_cm: 2.54
+  margin_left_cm: 2.5
+  margin_right_cm: 2.5
+
+# Claude API 配置 (可选，留空则使用手动模式)
+claude_api:
+  # 若不配置，analyzer 将输出结构化提示词供手动处理
+  api_key: ""  # 或设置环境变量 ANTHROPIC_API_KEY
+  model: "claude-sonnet-4-6"
